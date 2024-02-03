@@ -1,0 +1,34 @@
+bank_system/
+    ├── app/
+    │   ├── __init__.py
+    │   ├── routes.py          # Define Flask routes and views here
+    │   ├── models/            # Create a directory for your database models
+    │   │   ├── __init__.py
+    │   │   ├── user.py        # Define User model
+    │   │   ├── account.py     # Define Account model
+    │   │   ├── transaction.py # Define Transaction model
+    │   ├── templates/         # HTML templates go here
+    │   │   ├── base.html      # Base template for your site layout
+    │   │   ├── index.html     # Homepage template
+    │   │   ├── account.html   # Account-related templates
+    │   │   ├── transaction.html# Transaction-related templates
+    │   │   ├── auth/          # Authentication-related templates
+    │   │   │   ├── login.html
+    │   │   │   ├── register.html
+    │   │   │   └── ...
+    ├── static/                # Static files like CSS, JavaScript, and images
+    │   ├── css/
+    │   │   ├── style.css      # Your CSS styles
+    │   ├── js/
+    │   │   ├── main.js        # Your JavaScript code
+    │   └── img/
+    │       ├── logo.png       # Images for your website
+    ├── tests/                 # Unit and integration tests
+    │   ├── test_routes.py
+    │   ├── test_models.py
+    ├── config.py              # Configuration settings (e.g., database URI, secret key)
+    ├── run.py                 # Entry point for running your Flask app
+    ├── Dockerfile             # Docker configuration for containerization
+    ├── requirements.txt       # List of project dependencies
+    ├── README.md              # Project documentation
+
