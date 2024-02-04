@@ -1,1 +1,72 @@
-<!DOCTYPE html>
+{% extends 'auth/auth_base.html' %}
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/register.css') }}">
+<div class="container">
+    <div class="registeration-card">
+        <h1>Wellcome </h1> 
+        <form class="form" method="POST" action="/register">
+            <div class="input-container">
+                <label for="firstName">First Name: </label>
+                <input type="text" name="firstName" class="FirstName" style="background-color: transparent;" required>
+            </div>
+            <div class="input-container">
+                <label for="lastName">Last Name: </label>
+                <input type="text" name="lastName" class="LastName" style="background-color: transparent;" required>
+            </div>
+            <div class="input-container">
+                <label for="email">Email: </label>
+                <input type="email" name="email" class="email" style="background-color: transparent;" required>
+            </div>
+            <div class="input-container">
+                <label for="userName">Create a User Name: </label>
+                <input type="text" class="userName" name="userName" style="background-color: transparent;" required>
+            </div>
+            <div class="input-container">
+                <label for="password">Password: </label>
+                <input type="password" id="password" name="password" class="password" style="background-color: transparent;" required>
+            </div>
+            <div class="input-container">
+                <label for="passwordC">Confirm Password: </label>
+                <input type="password" id="passwordC" name="passwordC" class="password" style="background-color: transparent;" required>
+                <span id="password-error" style="color: red;"></span> <!-- Add this span for error message -->
+            </div>
+            <div class="input-container">
+                <label for="accountType">Choose an account: </label>
+                <select name="accountType" id="types" style="background-color: transparent;" class="types">
+                    <option value="Checking">Checking</option>
+                    <option value="Saving">Saving</option>
+                    <option value="Loan">Loan</option>
+                    <option value="Business">Business</option>
+                </select>
+            </div>
+            <div class="input-container">
+                <label for="balance">How much do you want to initially deposit? </label>
+                <input type="number" step="0.01" name="balance" class="balance" style="background-color: transparent;" placeholder="$X.xx">
+            </div>
+            <button type="submit">Register</button>
+        </form>
+    </div>
+</div>
+<script>
+    // Get references to the password and confirm password input fields and the error message span
+    const passwordInput = document.getElementById("password");
+    const confirmPasswordInput = document.getElementById("passwordC");
+    const passwordError = document.getElementById("password-error");
+
+    // Function to check if passwords match
+    function checkPasswordMatch() {
+        const password = passwordInput.value;
+        const confirmPassword = confirmPasswordInput.value;
+
+        if (password === confirmPassword) {
+            passwordError.textContent = ""; // Passwords match, clear the error message
+        } else {
+            passwordError.textContent = "Passwords do not match"; // Display the error message
+        }
+    }
+
+    // Add an event listener to the confirmPasswordInput field to check for password match on input
+    confirmPasswordInput.addEventListener("input", checkPasswordMatch);
+</script>
+
+{% endblock %}

@@ -1,12 +1,30 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BankDome</title>
-</head>
-<body>
-    <h1>Welcome to My HTML Page</h1>
-    <p>This is a simple HTML page with default tags.</p>
-</body>
-</html>
+{% extends 'base.html' %}
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+<div class="container">
+    <section class="upper-section">
+        <div class="image-container">
+            <img src="{{ url_for('static', filename='img/BankDom.png') }}" alt="logo" class="building"/>
+            <h1 class="bank-name">BankDom</h1>
+        </div>
+    </section>
+    <section class="lower-section">
+        <div class="center-table">
+            <table>
+                <tr>
+                    <td><img src="{{ url_for('static', filename='img/wallet.png') }}" alt="Savings-icone" class="service-icone"/></td>
+                    <td><img src="{{ url_for('static', filename='img/loans.png') }}" alt="Loans-icone" class="service-icone"/></td>
+                    <td><img src="{{ url_for('static', filename='img/checkings.png') }}" alt="checkings" class="service-icone"/></td>
+                    <td><img src="{{ url_for('static', filename='img/businessbanking.png') }}" alt="businessbanking" class="service-icone"/></td>
+                </tr>
+                <tr>
+                    <td class="services">Savings</td>
+                    <td class="services">Loans</td>
+                    <td class="services">Checkings</td>
+                    <td class="services">Business <br> Banking</td>
+                </tr>
+            </table>
+        </div>
+    </section>
+</div>
+{% endblock %}

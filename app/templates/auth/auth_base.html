@@ -3,20 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BankDom</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <title>BankDom Auth</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
     <!-- Add other CSS or external libraries here -->
 </head>
 <body>
     <header>
         <nav class="navbar">
-            <img src="{{ url_for('static', filename='#') }}" alt="logo" class="logo"/>
             <ul class="nav-menu">
                 <li><a href="{{ url_for('index') }}">Home</a></li>
-                <li> HH </li>
-                <li> HH </li>
-                <button type="button" onclick="location.href='/login'" class="logIn-button"> Log In </button>
             </ul>
+            <h1 class="page-header">BankDom</h1>
         </nav>
     </header>
 

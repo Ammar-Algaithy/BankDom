@@ -1,1 +1,23 @@
-<!DOCTYPE html>
+{% extends 'auth/auth_base.html' %}
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+<div class="container">
+    <div class="login-box">
+      <h2>Login</h2>
+      <form method="POST" class="form">
+        <div class="input-container">
+          <label for="userName">User Name:</label>
+          <input type="text" id="userName" name="userName" style="background-color: transparent;" required>
+        </div>
+  
+        <div class="input-container">
+          <label for="password">Password:</label>
+          <input type="password" id="password" name="password" style="background-color: transparent;" required>
+        </div>
+        <a href="#" class="login-help">Help with User ID or Password?</a>
+        <button type="submit">Log In</button>
+        <a href="{{ url_for('register') }}" class="login-help">Become a Member</a>
+      </form>
+    </div>
+</div>
+{% endblock %}

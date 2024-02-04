@@ -1,0 +1,42 @@
+body {
+    background-color: #f5eec7; /* Cream color for the page background */
+    color: #0a3a5a; /* Navy blue for the text */
+    font-family: BlackChancery;
+    margin: 0;
+}
+
+.navbar {
+    background-color: #063251; /* Navy blue for the navigation background */
+    color: #ffffff; /* White for the navigation text */
+    display: flex;
+    padding: 10px 20px;
+    justify-content: space-between; /* Pushes logo to the left and menu items to the right */
+    align-items: center; /* Vertically center content */
+    margin: 0;
+}
+.logo {
+    margin-right: 50%;
+    width: 60px; /* Adjust the width to your preferred size */
+    height: auto;
+}
+
+.nav-menu {
+    display: flex;
+    list-style: none;
+    justify-content: space-between;
+    flex-grow: 1;
+}
+
+.nav-menu li{
+    margin-right: 20px;
+}
+
+.logIn-button {
+    background-color: #f5eec7;
+    font-size: 15px;
+    font-family: BlackChancery;
+    border: none;
+    height: 40px;
+    width: 90px;
+    border-radius: 8px;
+}
