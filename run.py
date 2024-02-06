@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, flash
 from app.models.user import User
 
 app = Flask(__name__, template_folder='app/templates')
@@ -20,6 +20,7 @@ def login():
         userID = result[1]
         if check:
             session['user_id'] = userID
+            session['userName'] = userName
             return redirect(url_for('account'))
         
     return render_template('auth/login.html', error="Invalid credentials")
@@ -57,12 +58,39 @@ def account():
         # For example, you can retrieve user data from the database
         # user_id = session['user_id']
         # user = User.query.filter_by(customer_user_name=user_id).first()
-            
+        accounts = User.getAccounts(session['user_id'])
+        print("================================", accounts)
         # Render the account settings template with user data
-        return render_template('account.html', user=session['user_id'])  # Pass user data to the template
+        return render_template('account.html', userID=session['user_id'], accounts=accounts, userName=session['userName'])  # Pass user data to the template
     else:
         # If the user is not logged in, you can redirect them to the login page
         return redirect(url_for('login'))
 
+
+@app.route('/create/account', methods=['GET'])
+def create_account():
+    if request.method == 'GET':
+        data = User.get_user_info(session['user_id'])
+        User.createAccount(data)
+        accounts = User.getAccounts(session['user_id'])
+        print('Account created', accounts)
+        return redirect(url_for('account'))
+    else:
+        return render_template('account.html', error="Invalid credentials")
+
+
+@app.route('/logout', methods=['GET'])
+def logout():
+    # Clear session data
+    session.pop('user_id', None)  # Replace 'user_id' with the key(s) you want to clear
+    
+    # Optionally, you can add a message to indicate that the user is logged out
+    flash('You have been logged out', 'success')  # You should import 'flash' from flask
+    
+    # Redirect the user to the login or home page
+    return redirect(url_for('login'))  # Replace 'login' with the appropriate route
+
+    
 if __name__ == '__main__':
+    User.getAccounts('20240203223405-244917')
     app.run(debug=True)

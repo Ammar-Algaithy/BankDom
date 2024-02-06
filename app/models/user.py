@@ -82,20 +82,24 @@ class User():
         unique_account_number = timestamp_part + random_part
         return unique_account_number
     
-    def print_user_info(self):
+    def get_user_info(userID):
         # Print all user information
-        print(f"User Information:")
-        print(f"Customer User Name: {self.customer_user_name}")
-        print(f"Customer First Name: {self.customer_first_name}")
-        print(f"Customer Last Name: {self.customer_last_name}")
-        print(f"Customer Email: {self.customer_email}")
-        print(f"Customer ID: {self.customer_id}")
-        print(f"Account Number: {self.account_number}")
-        print(f"Account Type: {self.account_type}")
-        
-        # Convert self.balance to float and format it as a decimal with two decimal places
-        balance = float(self.balance)
-        print(f"Balance: ${balance:.2f}")
+        try:
+            conn = sqlite3.connect("BankDom.db")
+            cursor = conn.cursor()
+
+            # Query the database to find a matching user by user ID
+            cursor.execute("""
+                SELECT * FROM Users WHERE UserID = ?
+            """, (userID,))
+
+            result = cursor.fetchone()
+            return result
+        except sqlite3.Error as e:
+            print(f"SQLite error: {e}")
+            return False
+        finally:
+            conn.close()
 
     def insert_into_database(self, db_file='BankDom.db'):
         try:
@@ -109,6 +113,41 @@ class User():
             """, (self.customer_first_name, self.customer_last_name, self.customer_email, self.customer_user_name, self.customer_id, self.password, self.account_number, self.account_type, self.balance))
 
             conn.commit()
+        except sqlite3.Error as e:
+            print(f"SQLite error: {e}")
+        finally:
+            conn.close()
+    
+    def getAccounts(userID):
+        try:
+            conn = sqlite3.connect("BankDom.db")
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT AccountType.Name, Users.balance
+                FROM Users
+                INNER JOIN AccountType ON Users.AccountType = AccountType.Name
+                WHERE Users.UserID = ?
+            """, (userID,))
+            result = cursor.fetchall()
+            return result
+        except sqlite3.Error as e:
+            print(f"SQLite error: {e}")
+            return False
+
+    def createAccount(data, accountType='Saving'):
+        try:
+            conn = sqlite3.connect("BankDom.db")
+            cursor = conn.cursor()
+            newAccountNumber = User.generate_unique_account_number()
+            
+            # Insert the user data into the "Users" table
+            cursor.execute("""
+                INSERT INTO Users (FirstName, LastName, Email, Username, UserID, Password, AccountNumber, AccountType, Balance)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (data[0], data[1], data[2], data[3], data[4], data[5], newAccountNumber, accountType, 0.00))
+
+            conn.commit()
+            print("Completed")
         except sqlite3.Error as e:
             print(f"SQLite error: {e}")
         finally:
@@ -127,6 +166,4 @@ if __name__ == '__main__':
         )
 
     # Test password hashing and verification
-    check1 = user.check_password('password123') is True
-    check2 = user.check_password('wrongpassword') is True
     user.print_user_info()

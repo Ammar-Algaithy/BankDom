@@ -1,0 +1,26 @@
+body {
+    background-color: #f5eec7;
+    font-family: BlackChancery;
+    margin: 0;
+    padding: 0;
+}
+
+nav {
+    background-color: #0a3a5a;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+}
+
+.page-header {
+    color:#f5eec7;
+}
+
+li {
+    list-style: none;
+}
+li a {
+    color: #f5eec7;
+    text-decoration: none;
+}
