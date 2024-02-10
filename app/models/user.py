@@ -76,12 +76,52 @@ class User():
         return customer_id 
     
     @staticmethod
+    def generate_unique_transaction_id():
+        # Generate a unique transaction ID based on timestamp and random UUID
+        timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+        unique_id = str(uuid.uuid4().int)[:6]  # Extract the first 6 digits of a random UUID
+        transaction_id = f"{timestamp}-{unique_id}"
+        return transaction_id
+    
+    @staticmethod
     def generate_unique_account_number():
         timestamp_part = datetime.now().strftime('%y%m%d%H%M%S')
         random_part = str(uuid.uuid4().int)[:3]  # Extract the first 3 digits from a UUID
         unique_account_number = timestamp_part + random_part
         return unique_account_number
     
+    def getAccountNumber(customer_id):
+        customer_id = customer_id[0]
+        try:
+            conn = sqlite3.connect("BankDom.db")
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT AccountNumber FROM Users WHERE UserID = ?
+            """, (customer_id,))
+            result = cursor.fetchone()
+            return result
+        except sqlite3.Error as e:
+            print(f"SQLite error: {e}")
+            return False
+        finally:
+            conn.close()
+
+    def addTransaction(accountNumber, amount, type):
+        try:
+            conn = sqlite3.connect("BankDom.db")
+            cursor = conn.cursor()
+            transactionID = User.generate_unique_transaction_id()
+            cursor.execute("""
+                           INSERT INTO Transactions (TransactionID, AccountNumber, Amount, TransactionType) 
+                           VALUES (?,?,?,?)
+                           """, (transactionID, accountNumber, amount, type))
+            conn.commit()
+        except sqlite3.Error as e:
+            print(f"SQLite error: {e}")
+            return False
+        finally:
+            conn.close()
+
     def get_user_info(userID):
         # Print all user information
         try:
@@ -144,14 +184,15 @@ class User():
             cursor.execute("""
                 INSERT INTO Users (FirstName, LastName, Email, Username, UserID, Password, AccountNumber, AccountType, Balance)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, (data[0], data[1], data[2], data[3], data[4], data[5], newAccountNumber, accountType, 0.00))
+            """, (data[0], data[1], data[2], data[3], data[4], data[5], newAccountNumber, accountType, float(0.00)))
 
             conn.commit()
-            print("Completed")
         except sqlite3.Error as e:
             print(f"SQLite error: {e}")
         finally:
             conn.close()
+
+
 
 
 if __name__ == '__main__':

@@ -22,8 +22,7 @@ def login():
             session['user_id'] = userID
             session['userName'] = userName
             return redirect(url_for('account'))
-        
-    return render_template('auth/login.html', error="Invalid credentials")
+    return render_template('auth/login.html', title="accounts", error="Invalid credentials")
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -47,22 +46,28 @@ def register():
         )
         user1.insert_into_database()
         userID = User.getUserID(user_name)
+        accountNum = User.getAccountNumber(userID)[0]
+        User.addTransaction(accountNum, balance, "Deposit")
         session['user_id'] = userID
-        return render_template('account.html', user=session['user_id'])
+        session['userName'] = user_name
+        return redirect(url_for('account'))
     return render_template('auth/register.html')
+
+
 @app.route('/account')
 def account():
     # Check if the user is logged in (you can implement this logic)
     if 'user_id' in session:
+        print("You are logged in", session['user_id'])
         # Fetch user data or perform any necessary operations here
         # For example, you can retrieve user data from the database
         # user_id = session['user_id']
         # user = User.query.filter_by(customer_user_name=user_id).first()
-        accounts = User.getAccounts(session['user_id'])
-        print("================================", accounts)
+        accounts = User.getAccounts(session['user_id'][0])
         # Render the account settings template with user data
         return render_template('account.html', userID=session['user_id'], accounts=accounts, userName=session['userName'])  # Pass user data to the template
     else:
+        print("You are not logged in")
         # If the user is not logged in, you can redirect them to the login page
         return redirect(url_for('login'))
 
@@ -70,10 +75,10 @@ def account():
 @app.route('/create/account', methods=['GET'])
 def create_account():
     if request.method == 'GET':
-        data = User.get_user_info(session['user_id'])
+        data = User.get_user_info(session['user_id'][0])
+        print(data)
         User.createAccount(data)
-        accounts = User.getAccounts(session['user_id'])
-        print('Account created', accounts)
+        #accounts = User.getAccounts(session['user_id'])
         return redirect(url_for('account'))
     else:
         return render_template('account.html', error="Invalid credentials")

@@ -11,28 +11,38 @@
                 <li><a href="{{ url_for('index') }}">Home</a></li>
             </ul>
             <h1 class="page-header">BankDom</h1>
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                <ul class="flashes">
-                    {% for category, message in messages %}
-                        <li class="{{ category }}">{{ message }}</li>
-                    {% endfor %}
-                </ul>
-            {% endwith %}
             <ul class="nav-menu">
                 <li><a href="{{ url_for('logout') }}">Log out</a></li>
             </ul>
         </nav>
     </header>
-    <div class="container">
-        <h1>Hello, {{ userName }}</h1>
-        
-        <h3>Accounts:</h3>
-        <ul>
-            {% for account in accounts %}
-                <li>{{ account }}</li>
-            {% endfor %}
-        </ul>
-        <a class="btn btn-primary" href="{{ url_for('create_account') }}">Create Account</a>
-    </div>
+    <section class="info-card">
+        <div class="left">
+            <h1>Left</h1>
+        </div>
+        <div class="middle">
+            <h1>Hello, {{ userName }}</h1>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Account</th>
+                        <th>Balance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for account in accounts %}
+                    <tr>
+                        <td>{{ account[0] }}</td>
+                        <td>${{ account[1] }}¢</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <a class="btn btn-primary" href="{{ url_for('create_account') }}">Create Account</a>
+        </div>
+        <div class="right">
+        </div>
+    </section>
 </body>
 </html>

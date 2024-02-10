@@ -10,13 +10,17 @@
 <body>
     <header>
         <nav class="navbar">
-            <img src="{{ url_for('static', filename='#') }}" alt="logo" class="logo"/>
-            <ul class="nav-menu">
-                <li><a href="{{ url_for('index') }}">Home</a></li>
-                <li> HH </li>
-                <li> HH </li>
-                <button type="button" onclick="location.href='/login'" class="logIn-button"> Log In </button>
-            </ul>
+            <div>
+                <img src="{{ url_for('static', filename='#') }}" alt="logo" class="logo"/>
+            </div>
+            <div>
+                <ul class="nav-menu">
+                    <li><a href="{{ url_for('index') }}">Home</a></li>
+                    <li> HH </li>
+                    <li> HH </li>
+                    <button type="button" onclick="location.href='/login'" class="logIn-button"> Log In </button>
+                </ul>
+            </div>
         </nav>
     </header>
 

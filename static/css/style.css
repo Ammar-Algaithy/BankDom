@@ -1,22 +1,25 @@
 body {
-    background-color: #f5eec7; /* Cream color for the page background */
-    color: #0a3a5a; /* Navy blue for the text */
+    background-color: #f5eec7;
+    color: #0a3a5a;
     font-family: BlackChancery;
     margin: 0;
 }
 
+
 .navbar {
-    background-color: #063251; /* Navy blue for the navigation background */
-    color: #ffffff; /* White for the navigation text */
+    position: fixed; /* Fixed position to keep the navbar at the top */
+    top: 0; /* Stick it to the top */
+    width: 100%; /* Full width */
+    background-color: #063251;
+    color: #ffffff;
     display: flex;
-    padding: 10px 20px;
-    justify-content: space-between; /* Pushes logo to the left and menu items to the right */
-    align-items: center; /* Vertically center content */
-    margin: 0;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 1000; /* Ensure it's on top of other content */
 }
+
 .logo {
-    margin-right: 50%;
-    width: 60px; /* Adjust the width to your preferred size */
+    width: 60px;
     height: auto;
 }
 
@@ -27,7 +30,7 @@ body {
     flex-grow: 1;
 }
 
-.nav-menu li{
+.nav-menu li {
     margin-right: 20px;
 }
 
@@ -39,4 +42,9 @@ body {
     height: 40px;
     width: 90px;
     border-radius: 8px;
+}
+
+/* Add some padding to the body to avoid content being overlapped by the fixed navbar */
+body {
+    padding-top: 60px; /* Adjust as needed based on the height of your navbar */
 }
