@@ -46,7 +46,7 @@ def register():
         )
         user1.insert_into_database()
         userID = User.getUserID(user_name)
-        accountNum = User.getAccountNumber(userID)[0]
+        accountNum = User.getAccountNumber(userID)
         User.addTransaction(accountNum, balance, "Deposit")
         session['user_id'] = userID
         session['userName'] = user_name
@@ -64,7 +64,6 @@ def account():
         # user_id = session['user_id']
         # user = User.query.filter_by(customer_user_name=user_id).first()
         accounts = User.getAccounts(session['user_id'])
-        print("You are logged in and your acounts are ", accounts)
         # Render the account settings template with user data
         return render_template('account.html', userID=session['user_id'], accounts=accounts, userName=session['userName'])  # Pass user data to the template
     else:
@@ -76,12 +75,60 @@ def account():
 @app.route('/create/account', methods=['GET'])
 def create_account():
     if request.method == 'GET':
-        data = User.get_user_info(session['user_id'][0])
+        data = User.get_user_info(session['user_id'])
         User.createAccount(data)
         #accounts = User.getAccounts(session['user_id'])
         return redirect(url_for('account'))
     else:
         return render_template('account.html', error="Invalid credentials")
+
+@app.route('/account/deposit', methods=['POST'])
+def deposit():
+    if request.method == 'POST':
+        amount = request.form.get('amount')
+        accountNumber = request.form.get('account_number')  # Retrieve account number from the form
+        userID = session.get('user_id')  # Retrieve user ID from the session
+        if userID:  # Ensure user ID exists in the session
+            User.deposit(amount, userID, accountNumber)  # Call the deposit function with all parameters
+            User.addTransaction(accountNumber, amount, "Deposit") #
+            return redirect(url_for('account'))
+        else:
+            return render_template('account.html', error="Invalid session")
+    else:
+        return render_template('account.html', error="Invalid request method")
+
+@app.route('/account/transfer', methods=['POST'])
+def transfer():
+    if request.method == 'POST':
+        amount = request.form.get('amount')
+        recieverAccountNumber = request.form.get('account_number')  # Retrieve selected account number from the form
+        fromAccount = request.form.get('selected_account')
+        userID = session.get('user_id')  # Retrieve user ID from the session
+        if userID:  # Ensure user ID exists in the session
+            #User.deposit(amount, userID, accountNumber)  # Call the deposit function with all parameters
+            balance = User.getBalance(fromAccount)
+            if balance is None:
+                return render_template('account.html', error="Unable to retrieve balance for the selected account")
+
+            try:
+                if float(balance) >= float(amount):
+                    User.transfer(amount, recieverAccountNumber, fromAccount)
+                    User.addTransaction(recieverAccountNumber, amount, "Deposit")
+                    return redirect(url_for('account'))
+                else:
+                    print("Insufficient funds")
+                    return render_template('account.html', error="Insufficient funds")
+            except ValueError:
+                return render_template('account.html', error="Invalid amount")
+        else:
+            return render_template('account.html', error="Invalid session")
+    else:
+        return render_template('account.html', error="Invalid request method")
+
+      
+    
+
+
 
 
 @app.route('/logout', methods=['GET'])

@@ -28,7 +28,7 @@ class User():
                 SELECT UserID FROM Users WHERE Username = ?
             """, (userName,))
             result = cursor.fetchone()
-            return result
+            return result[0]
         except sqlite3.Error as e:
             print(f"SQLite error: {e}")
             return False
@@ -91,7 +91,7 @@ class User():
         return unique_account_number
     
     def getAccountNumber(customer_id):
-        customer_id = customer_id[0]
+        customer_id = customer_id
         try:
             conn = sqlite3.connect("BankDom.db")
             cursor = conn.cursor()
@@ -99,7 +99,7 @@ class User():
                 SELECT AccountNumber FROM Users WHERE UserID = ?
             """, (customer_id,))
             result = cursor.fetchone()
-            return result
+            return result[0]
         except sqlite3.Error as e:
             print(f"SQLite error: {e}")
             return False
@@ -163,14 +163,12 @@ class User():
             conn = sqlite3.connect("BankDom.db")
             cursor = conn.cursor()
             cursor.execute("""
-                SELECT AccountType.Name, Users.balance
+                SELECT AccountType.Name, Users.balance, Users.AccountNumber
                 FROM Users
                 INNER JOIN AccountType ON Users.AccountType = AccountType.Name
                 WHERE Users.UserID = ?
             """, (userID,))
             result = cursor.fetchall()
-            print("********************************")
-            print(result)
             return result
         except sqlite3.Error as e:
             print(f"SQLite error: {e}")
@@ -193,6 +191,65 @@ class User():
             print(f"SQLite error: {e}")
         finally:
             conn.close()
+
+    def deposit(amount, userID, accountNumber):
+        try:
+            conn = sqlite3.connect("BankDom.db")
+            cursor = conn.cursor()
+            cursor.execute("""
+            UPDATE Users
+            SET Balance = Balance + ?
+            WHERE AccountNumber = ?
+            """, (amount, accountNumber))
+            conn.commit()
+        except sqlite3.Error as e:
+            print(f"SQLite error: {e}")
+        finally:
+            conn.close()
+
+    def transfer(amount, recieverAccountNumber, fromAccount):
+        try:
+            amount = float(amount)
+            conn = sqlite3.connect("BankDom.db")
+            cursor = conn.cursor()
+            cursor.execute("""
+            UPDATE Users
+            SET Balance = Balance + ?
+            WHERE AccountNumber = ?
+            """, (amount, recieverAccountNumber))
+            cursor.execute("""
+            UPDATE Users
+            SET Balance = Balance - ?
+            WHERE AccountNumber = ?
+            """, (amount, fromAccount))
+            conn.commit()
+            
+        except sqlite3.Error as e:
+            print(f"SQLite error: {e}")
+        finally:
+            conn.close()
+    
+    def getBalance(accountNumber):
+        try:
+            conn = sqlite3.connect("BankDom.db")
+            cursor = conn.cursor()
+
+            # Query the database to find a matching user by user ID
+            cursor.execute("""
+                SELECT Balance FROM Users WHERE AccountNumber = ?
+            """, (accountNumber,))
+
+            result = cursor.fetchone()
+            return result[0]
+        except sqlite3.Error as e:
+            print(f"SQLite error: {e}")
+            return False
+        finally:
+            conn.close()
+
+
+
+
 
 
 
