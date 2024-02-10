@@ -63,7 +63,8 @@ def account():
         # For example, you can retrieve user data from the database
         # user_id = session['user_id']
         # user = User.query.filter_by(customer_user_name=user_id).first()
-        accounts = User.getAccounts(session['user_id'][0])
+        accounts = User.getAccounts(session['user_id'])
+        print("You are logged in and your acounts are ", accounts)
         # Render the account settings template with user data
         return render_template('account.html', userID=session['user_id'], accounts=accounts, userName=session['userName'])  # Pass user data to the template
     else:
@@ -76,7 +77,6 @@ def account():
 def create_account():
     if request.method == 'GET':
         data = User.get_user_info(session['user_id'][0])
-        print(data)
         User.createAccount(data)
         #accounts = User.getAccounts(session['user_id'])
         return redirect(url_for('account'))

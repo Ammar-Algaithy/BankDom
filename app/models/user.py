@@ -169,6 +169,8 @@ class User():
                 WHERE Users.UserID = ?
             """, (userID,))
             result = cursor.fetchall()
+            print("********************************")
+            print(result)
             return result
         except sqlite3.Error as e:
             print(f"SQLite error: {e}")
