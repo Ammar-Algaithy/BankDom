@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Transactions</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/transactions.css') }}">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <ul class="nav-menu">
+                <li><a href="{{ url_for('account') }}">Home</a></li>
+            </ul>
+            <h1 class="page-header">BankDom</h1>
+            <ul class="nav-menu">
+                <li><a href="{{ url_for('logout') }}">Log out</a></li>
+            </ul>
+        </nav>
+    </header>
+    <div class="middle">
+        <h1>Hello, {{ userName }}</h1>
+
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Amount</th>
+                    <th>Date/Time</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for transaction in transactions %}
+                <tr class="cell">
+                    <td>${{ transaction[0] }}</td>
+                    <td>{{ transaction[1] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="pageNav">
+            {% if prev_page %}
+                <a href="{{ url_for('account_transactions', account_num=account_num, page=prev_page, page_size=page_size) }}" class="pagination-link previous">Previous</a>
+            {% endif %}
+            {% if next_page %}
+                <a href="{{ url_for('account_transactions', account_num=account_num, page=next_page, page_size=page_size) }}" class="pagination-link next">Next</a>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

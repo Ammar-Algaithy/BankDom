@@ -34,10 +34,12 @@ li a {
 .info-card {
     margin: 10px;
     display: flex;
-    border: 2px solid #f5eec7;
     justify-content: center;
     flex-direction: row;
     padding: 10px;
+    height: 100%;
+    min-height: 79vh;
+
 }
 
 .middle {
@@ -118,8 +120,10 @@ select[name="account_number"]:hover {
     text-decoration: none;
     color: #fff;
     background-color: #007bff;
+    font-family: BlackChancery;
     border-radius: 5px;
     border: none;
+    font-size: 15px;
     cursor: pointer;
 }
 
@@ -172,3 +176,22 @@ input[type="number"], input[type="text"]:hover {
 .account-row.active {
     background-color: #f5eec7;
 }
+
+
+
+#transferButton {
+    background-color: #f5eec7;
+    display: inline-block;
+    padding: 10px 20px;
+    margin: 20px 0;
+    text-decoration: none;
+    color:#0a3a5a;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+}
+
+footer{
+    bottom: 0;
+}
+

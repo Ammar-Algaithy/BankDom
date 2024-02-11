@@ -32,10 +32,10 @@
                 </thead>
                 <tbody>
                     {% for account in accounts %}
-                    <tr>
-                        <td>{{ account[0] }}</td>
-                        <td>${{ account[1] }}¢</td>
-                    </tr>
+                        <tr onclick="sendAccountNum('{{ account[2] }}')">
+                            <td>{{ account[0] }}</td>
+                            <td>${{ account[1] }}</td>
+                        </tr>
                     {% endfor %}
                 </tbody>
             </table>
@@ -71,31 +71,86 @@
                             {% endfor %}
                         </select>
                     </div>
-                    <button type="submit" class="btn btn-primary">Transfer</button>
+                    <button type="submit" class="btn btn-primary" id="transferButton">Transfer</button>
                 </form>
             </div>            
         </div>
     </section> 
+    <footer>
+        &copy; {{ 2024 }} bankDom Bank System
+    </footer>
     <script>
         function showDepForm() {
-            var elem = document.getElementById("deposit-form");
-            var elem2 = document.getElementById("transfer");
-            if (elem.style.display === "none") {
-                elem.style.display = "inline-block"; 
-                elem2.style.display = "none";
+            var depositForm = document.getElementById("deposit-form");
+            var transferForm = document.getElementById("transfer-form");
+            var depositButton = document.getElementById("deposit");
+            var transferButton = document.getElementById("transfer");
+    
+            if (depositForm.style.display === "none") {
+                depositForm.style.display = "inline-block"; 
+                depositButton.innerText = "Cancel";
+                transferForm.style.display = "none";
+                transferButton.style.display = "none";  // hide transfer button when deposit form is shown
             } else {
-                elem.style.display = "none";
-                elem2.style.display = "inline-block";
+                depositForm.style.display = "none";
+                transferButton.style.display = "inline-block";  // show transfer button when deposit form is hidden
+                depositButton.innerText = "Deposit";
             }
         }
+    
         function showTransForm() {
-            var elem = document.getElementById("transfer-form");
-            if (elem.style.display === "none") {
-                elem.style.display = "inline-block"; // or any other desired display value
+            var depositForm = document.getElementById("deposit-form");
+            var transferForm = document.getElementById("transfer-form");
+            var depositButton = document.getElementById("deposit");
+            var transferButton = document.getElementById("transfer");
+    
+            if (transferForm.style.display === "none") {
+                transferForm.style.display = "inline-block";
+                depositForm.style.display = "none";
+                depositButton.style.display = "none";  // hide deposit button when transfer form is shown
+                transferButton.innerText = "Cancel";
             } else {
-                elem.style.display = "none";
+                transferForm.style.display = "none";
+                depositButton.style.display = "inline-block";  // show deposit button when transfer form is hidden
+                transferButton.innerText = "Transfer";
             }
         }
-    </script> 
+
+        function sendAccountNum(num) {
+            // Create a FormData object to store the form data
+            var formData = new FormData();
+            // Append the account number to the form data
+            formData.append('account_num', num);
+
+            // Create an XMLHttpRequest object
+            var xhr = new XMLHttpRequest();
+            // Open a POST request to the Flask route
+            xhr.open('POST', '/account/transactions', true);
+
+            // Set up onload handler to handle response
+            xhr.onload = function () {
+                // Check if the request was successful
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    // Handle successful response
+                    var transactionsHtml = xhr.responseText;
+                    // Update the current page with the transactions HTML
+                    document.body.innerHTML = transactionsHtml;
+                } else {
+                    // Handle error
+                    console.error('Request failed with status:', xhr.status);
+                }
+            };
+
+            // Set up onerror handler to handle errors
+            xhr.onerror = function () {
+                console.error('Request failed');
+            };
+
+            // Send the form data
+            xhr.send(formData);
+        }
+        
+    </script>
+     
 </body>
 </html>

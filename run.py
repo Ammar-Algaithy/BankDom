@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask import Flask, render_template, request, redirect, url_for, session, flash, make_response
 from app.models.user import User
 
 app = Flask(__name__, template_folder='app/templates')
@@ -10,19 +10,6 @@ app.secret_key = 'your_secret_key_here'
 def index():
     return render_template('index.html')
 
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        userName = request.form.get('userName')
-        password = request.form.get('password')
-        result = User.check_credentials(userName, password)
-        check = result[0]
-        userID = result[1]
-        if check:
-            session['user_id'] = userID
-            session['userName'] = userName
-            return redirect(url_for('account'))
-    return render_template('auth/login.html', title="accounts", error="Invalid credentials")
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -54,11 +41,24 @@ def register():
     return render_template('auth/register.html')
 
 
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        userName = request.form.get('userName')
+        password = request.form.get('password')
+        result = User.check_credentials(userName, password)
+        check = result[0]
+        userID = result[1]
+        if check:
+            session['user_id'] = userID
+            session['userName'] = userName
+            return redirect(url_for('account'))
+    return render_template('auth/login.html', title="accounts", error="Invalid credentials")
+
 @app.route('/account')
 def account():
     # Check if the user is logged in (you can implement this logic)
     if 'user_id' in session:
-        print("You are logged in", session['user_id'])
         # Fetch user data or perform any necessary operations here
         # For example, you can retrieve user data from the database
         # user_id = session['user_id']
@@ -89,7 +89,7 @@ def deposit():
         accountNumber = request.form.get('account_number')  # Retrieve account number from the form
         userID = session.get('user_id')  # Retrieve user ID from the session
         if userID:  # Ensure user ID exists in the session
-            User.deposit(amount, userID, accountNumber)  # Call the deposit function with all parameters
+            User.deposit(amount, accountNumber)  # Call the deposit function with all parameters
             User.addTransaction(accountNumber, amount, "Deposit") #
             return redirect(url_for('account'))
         else:
@@ -116,8 +116,7 @@ def transfer():
                     User.addTransaction(recieverAccountNumber, amount, "Deposit")
                     return redirect(url_for('account'))
                 else:
-                    print("Insufficient funds")
-                    return render_template('account.html', error="Insufficient funds")
+                    return render_template('InsufficientFund.html', error="Insufficient funds")
             except ValueError:
                 return render_template('account.html', error="Invalid amount")
         else:
@@ -125,23 +124,49 @@ def transfer():
     else:
         return render_template('account.html', error="Invalid request method")
 
-      
-    
 
+@app.route('/account/transactions', methods=['GET', 'POST'])
+def account_transactions():
+    if request.method == 'POST':
+        # Handle the POST request to fetch transactions data
+        account_num = request.form.get('account_num')
+        # Fetch transactions data and render the template
+        return render_transactions_template(account_num)
+    elif request.method == 'GET':
+        # Handle the GET request for pagination
+        account_num = request.args.get('account_num')
+        page = request.args.get('page', default=1, type=int)
+        page_size = request.args.get('page_size', default=10, type=int)
+        # Fetch transactions data and render the template
+        return render_transactions_template(account_num, page, page_size)
+
+def render_transactions_template(account_num, page=1, page_size=10):
+    # Calculate pagination variables and fetch transactions data
+    offset = (page - 1) * page_size
+    transactions = User.get_paginated_transactions(account_num, offset, page_size)
+    total_transactions_count = User.get_total_transactions_count(account_num)
+    prev_page = page - 1 if page > 1 else None
+    next_page = page + 1 if offset + page_size < total_transactions_count else None
+    # Render the transactions template with pagination variables and transactions data
+    return render_template('transactions.html', account_num=account_num, transactions=transactions,
+                           page=page, page_size=page_size, prev_page=prev_page, next_page=next_page)
 
 
 
 @app.route('/logout', methods=['GET'])
 def logout():
-    # Clear session data
-    session.pop('user_id', None)  # Replace 'user_id' with the key(s) you want to clear
-    
-    # Optionally, you can add a message to indicate that the user is logged out
-    flash('You have been logged out', 'success')  # You should import 'flash' from flask
-    
-    # Redirect the user to the login or home page
-    return redirect(url_for('login'))  # Replace 'login' with the appropriate route
+    session.pop('user_id', None)
+    flash('You have been logged out', 'success')
 
+    # Create a response object
+    response = make_response(redirect(url_for('login')))
+
+    # Set headers to prevent caching
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+
+    return response
     
 if __name__ == '__main__':
     User.getAccounts('20240203223405-244917')

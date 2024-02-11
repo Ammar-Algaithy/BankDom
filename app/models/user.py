@@ -20,6 +20,43 @@ class User():
         # Hash the password using a secure hash algorithm
         return generate_password_hash(password)
     
+    def check_password_hash(self, stored_hash, password):
+        # Check if the provided password matches the stored hash
+        return check_password_hash(stored_hash, password)
+    
+    @staticmethod
+    def generate_unique_customer_id():
+        # Generate a unique customer ID based on timestamp and random UUID
+        timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+        unique_id = str(uuid.uuid4().int)[:6]  # Extract the first 6 digits of a random UUID
+        customer_id = f"{timestamp}-{unique_id}"
+        return customer_id 
+    
+    @staticmethod
+    def generate_unique_transaction_id():
+        # Generate a unique transaction ID based on timestamp and random UUID
+        timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+        unique_id = str(uuid.uuid4().int)[:6]  # Extract the first 6 digits of a random UUID
+        transaction_id = f"{timestamp}-{unique_id}"
+        return transaction_id
+    
+    @staticmethod
+    def generate_unique_account_number():
+        timestamp_part = datetime.now().strftime('%y%m%d%H%M%S')
+        random_part = str(uuid.uuid4().int)[:3]  # Extract the first 3 digits from a UUID
+        unique_account_number = timestamp_part + random_part
+        return unique_account_number
+    
+    def execute_query(self, query, parameters=(), fetchone=False, fetchall=False):
+        with sqlite3.connect("BankDom.db") as conn:
+            cursor = conn.cursor()
+            cursor.execute(query, parameters)
+            conn.commit()
+            if fetchone:
+                return cursor.fetchone()
+            elif fetchall:
+                return cursor.fetchall()
+            
     def getUserID(userName):
         try:
             conn = sqlite3.connect("BankDom.db")
@@ -62,33 +99,7 @@ class User():
             return False
         finally:
             conn.close()
-
-    def check_password_hash(self, stored_hash, password):
-        # Check if the provided password matches the stored hash
-        return check_password_hash(stored_hash, password)
     
-    @staticmethod
-    def generate_unique_customer_id():
-        # Generate a unique customer ID based on timestamp and random UUID
-        timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
-        unique_id = str(uuid.uuid4().int)[:6]  # Extract the first 6 digits of a random UUID
-        customer_id = f"{timestamp}-{unique_id}"
-        return customer_id 
-    
-    @staticmethod
-    def generate_unique_transaction_id():
-        # Generate a unique transaction ID based on timestamp and random UUID
-        timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
-        unique_id = str(uuid.uuid4().int)[:6]  # Extract the first 6 digits of a random UUID
-        transaction_id = f"{timestamp}-{unique_id}"
-        return transaction_id
-    
-    @staticmethod
-    def generate_unique_account_number():
-        timestamp_part = datetime.now().strftime('%y%m%d%H%M%S')
-        random_part = str(uuid.uuid4().int)[:3]  # Extract the first 3 digits from a UUID
-        unique_account_number = timestamp_part + random_part
-        return unique_account_number
     
     def getAccountNumber(customer_id):
         customer_id = customer_id
@@ -192,7 +203,7 @@ class User():
         finally:
             conn.close()
 
-    def deposit(amount, userID, accountNumber):
+    def deposit(amount, accountNumber):
         try:
             conn = sqlite3.connect("BankDom.db")
             cursor = conn.cursor()
@@ -221,9 +232,11 @@ class User():
             UPDATE Users
             SET Balance = Balance - ?
             WHERE AccountNumber = ?
-            """, (amount, fromAccount))
+            """, (amount, fromAccount*(1)))
             conn.commit()
-            
+            User.addTransaction(recieverAccountNumber, amount, "Online")
+            amount = amount * (-1)
+            User.addTransaction(fromAccount, amount, "Online")
         except sqlite3.Error as e:
             print(f"SQLite error: {e}")
         finally:
@@ -247,11 +260,59 @@ class User():
         finally:
             conn.close()
 
+    @staticmethod
+    def get_paginated_transactions(account_num, offset, page_size):
+        # Fetch all transactions for the account
+        all_transactions = User.get_all_transactions(account_num)
+        
+        # Calculate the starting and ending indices for the current page
+        start_index = offset
+        end_index = offset + page_size
+        
+        # Subset the transactions for the current page
+        paginated_transactions = all_transactions[start_index:end_index]
+        
+        return paginated_transactions
 
+    @staticmethod
+    def get_all_transactions(account_num):
+        try:
+            conn = sqlite3.connect("BankDom.db")
+            cursor = conn.cursor()
 
-
-
-
+            # Query the database to find all transactions for the given account number
+            cursor.execute("""
+                SELECT Amount, TransactionDate 
+                FROM Transactions 
+                WHERE AccountNumber = ?
+                ORDER BY TransactionDate DESC
+            """, (account_num,))
+            
+            result = cursor.fetchall()
+            return result
+        except sqlite3.Error as e:
+            print(f"SQLite error: {e}")
+            return False
+        finally:
+            conn.close()
+    
+    @staticmethod
+    def get_total_transactions_count(account_num):
+        try:
+            conn = sqlite3.connect("BankDom.db")
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT COUNT(*) 
+                FROM Transactions 
+                WHERE AccountNumber = ?
+            """, (account_num,))
+            result = cursor.fetchone()[0]  # Fetch the count value from the result
+            return result
+        except sqlite3.Error as e:
+            print(f"SQLite error: {e}")
+            return False
+        finally:
+            conn.close()
 
 
 if __name__ == '__main__':
