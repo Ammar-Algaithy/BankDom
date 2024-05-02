@@ -26,7 +26,6 @@ bank_system/
     ├── tests/                 # Unit and integration tests
     │   ├── test_routes.py
     │   ├── test_models.py
-    ├── config.py              # Configuration settings (e.g., database URI, secret key)
     ├── run.py                 # Entry point for running your Flask app
     ├── Dockerfile             # Docker configuration for containerization
     ├── requirements.txt       # List of project dependencies

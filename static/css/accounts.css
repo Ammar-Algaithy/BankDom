@@ -1,3 +1,4 @@
+/* General styling */
 body {
     background-color: #0a3a5a;
     font-family: BlackChancery;
@@ -39,7 +40,21 @@ li a {
     padding: 10px;
     height: 100%;
     min-height: 79vh;
+}
 
+.left,
+.right {
+    text-align: center; 
+    background-color: transparent;
+    border: 1px solid #f5eec7;
+    border-radius: 5px;
+    padding: inherit;
+    margin: inherit;
+    min-width: 15%;
+    margin-bottom: 20px; 
+    display: flex;
+    justify-content:safe;
+    flex-direction: column;
 }
 
 .middle {
@@ -56,18 +71,6 @@ li a {
     align-items: center;
 }
 
-.left,
-.right {
-    text-align: center; /* Center the contents horizontally */
-    background-color: transparent;
-    border: 1px solid #f5eec7;
-    border-radius: 5px;
-    padding: inherit;
-    margin: inherit;
-    min-width: 15%;
-}
-
-
 .data-table {
     width: 80%;
     margin: 20px auto;
@@ -83,12 +86,13 @@ li a {
 
 .data-table th {
     background-color: #f2f2f2;
+    text-align: left;
 }
 
 .data-table tbody tr:hover {
     background-color: #f9f9f9;
 }
-/* Style for the select element */
+
 select[name="account_number"] {
     width: 100%;
     padding: 8px;
@@ -96,30 +100,32 @@ select[name="account_number"] {
     border: 1px solid #ccc;
     border-radius: 3px;
     box-sizing: border-box;
-    background-color: #fff; /* Background color of the select */
-    color: #0a3a5a; /* Text color of the select */
-    font-size: 16px; /* Font size of the select */
+    background-color: #fff;
+    color: #0a3a5a;
+    font-size: 16px;
 }
 
 /* Style for the options within the select */
 select[name="account_number"] option {
-    background-color: #f5eec7; /* Background color of options */
-    color: #0a3a5a; /* Text color of options */
-    padding: 8px; /* Padding of options */
-    border-bottom: 1px solid #ccc; /* Border between options */
+    background-color: #f5eec7;
+    color: #0a3a5a;
+    padding: 8px;
+    border-bottom: 1px solid #ccc;
 }
 
 /* Style for the select when hovered */
 select[name="account_number"]:hover {
-    border-color: #007bff; /* Border color on hover */
+    border-color: #007bff;
 }
+
+/* General button styling */
 .btn {
-    display: inline-block;
+    display: block;
     padding: 10px 20px;
-    margin: 20px 0;
+    margin: 10px auto; /* Center the button horizontally */
     text-decoration: none;
-    color: #fff;
-    background-color: #007bff;
+    color: #0a3a5a;
+    background-color: #f5eec7;
     font-family: BlackChancery;
     border-radius: 5px;
     border: none;
@@ -128,9 +134,20 @@ select[name="account_number"]:hover {
 }
 
 .btn:hover {
-    background-color: #0056b3;
+    background-color: #fff;
+    color: black;
+    transition: 0.5s ease-in-out;
+
 }
 
+.middle a {
+    text-align: center; /* Center horizontally */
+    margin: 0 auto; /* Center horizontally */
+    padding: 10px 20px; /* Adjust padding as needed */
+    background-color: #0a3a5a;
+    color: #f5eec7;
+}
+/* Styling for the forms */
 .form {
     min-width: 100px;
     margin: 0 auto;
@@ -138,60 +155,68 @@ select[name="account_number"]:hover {
     align-items: center;
     border: 2px;
     border-radius: 5px;
-
 }
 
 label {
     display: block;
     margin-bottom: 5px;
-    color: #f5eec7; /* Text color of the label */
+    color: #f5eec7;
 }
 
-/* Style for the input element */
 input[type="number"],
 input[type="text"] {
-    width: 100%;
+    width: calc(100% - 16px);
     padding: 8px;
     margin-bottom: 10px;
     border: 1px solid #ccc;
     border-radius: 3px;
     box-sizing: border-box;
-    background-color: #fff; /* Background color of the input */
-    color: #0a3a5a; /* Text color of the input */
-    font-size: 16px; /* Font size of the input */
-}
-
-/* Style for the input element when hovered */
-input[type="number"], input[type="text"]:hover {
-    border-color: #007bff; /* Border color on hover */
-}
-
-#account:hover,
-.account-row:hover,
-.account-row.active {
+    background-color: #fff;
     color: #0a3a5a;
+    font-size: 16px;
 }
 
-#account:hover,
-.account-row.active {
-    background-color: #f5eec7;
+input[type="number"], 
+input[type="text"]:hover {
+    border-color: #007bff;
 }
 
-
-
-#transferButton {
+.left {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly; /* Divide the space evenly between the elements */
+    align-items: center; /* Center the items horizontally */
+    margin: 2%; /* Adjust margin as needed */
+}
+.upper-section {
     background-color: #f5eec7;
-    display: inline-block;
-    padding: 10px 20px;
-    margin: 20px 0;
-    text-decoration: none;
+    margin: 2%;
+}
+
+.upper-section h3{
     color:#0a3a5a;
-    border-radius: 5px;
-    border: none;
-    cursor: pointer;
 }
 
-footer{
+.upper-section div{
+    color: balck;
+}
+
+.middle-section{
+    background-color: aqua;
+    margin: 2%;
+}
+
+.lower-section{
+    background-color: red;
+    margin: 2%;
+}
+
+footer {
+    position: fixed;
     bottom: 0;
+    width: 100%;
+    background-color: #0a3a5a;
+    padding: 10px 0;
+    text-align: center;
+    color: #f5eec7;
 }
-

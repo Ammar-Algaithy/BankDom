@@ -1,4 +1,3 @@
-#importing needed libraries and models
 import uuid
 import sqlite3
 from datetime import datetime
@@ -47,194 +46,113 @@ class User():
         unique_account_number = timestamp_part + random_part
         return unique_account_number
     
-    def execute_query(self, query, parameters=(), fetchone=False, fetchall=False):
-        with sqlite3.connect("BankDom.db") as conn:
-            cursor = conn.cursor()
-            cursor.execute(query, parameters)
-            conn.commit()
-            if fetchone:
-                return cursor.fetchone()
-            elif fetchall:
-                return cursor.fetchall()
-            
-    def getUserID(userName):
-        try:
-            conn = sqlite3.connect("BankDom.db")
-            cursor = conn.cursor()
-            cursor.execute("""
-                SELECT UserID FROM Users WHERE Username = ?
-            """, (userName,))
-            result = cursor.fetchone()
-            return result[0]
-        except sqlite3.Error as e:
-            print(f"SQLite error: {e}")
-            return False
-        finally:
-            conn.close()
-
-
-
-    def check_credentials(userName, password, db_file='BankDom.db'):
+    @staticmethod
+    def connect_to_database(query=None, parameters=(), fetchone=False, fetchall=False, db_file='BankDom.db'):
         try:
             conn = sqlite3.connect(db_file)
             cursor = conn.cursor()
-
-            # Query the database to find a matching user by user ID
-            cursor.execute("""
-                SELECT Username, password, UserID FROM Users WHERE Username = ?
-            """, (userName,))
-
-            result = cursor.fetchone()
-            if result:
-                stored_password_hash = result[1]
-                # Check if the provided password matches the stored hash
-                check = check_password_hash(stored_password_hash, password)
-                if check:
-                    return [check, result[2]]    
+            if query:
+                cursor.execute(query, parameters)
+                conn.commit()
+                if fetchone:
+                    result = cursor.fetchone()
+                    conn.close()
+                    return result
+                elif fetchall:
+                    result = cursor.fetchall()
+                    conn.close()
+                    return result
             else:
-                return False  # No matching user found
-
+                return conn
         except sqlite3.Error as e:
             print(f"SQLite error: {e}")
-            return False
-        finally:
-            conn.close()
-    
-    
-    def getAccountNumber(customer_id):
-        customer_id = customer_id
-        try:
-            conn = sqlite3.connect("BankDom.db")
-            cursor = conn.cursor()
-            cursor.execute("""
-                SELECT AccountNumber FROM Users WHERE UserID = ?
-            """, (customer_id,))
-            result = cursor.fetchone()
+            return None
+
+    @staticmethod
+    def getUserID(userName):
+        query = "SELECT UserID FROM Users WHERE Username = ?"
+        parameters = (userName,)
+        result = User.connect_to_database(query=query, parameters=parameters, fetchone=True)
+        if result:
             return result[0]
-        except sqlite3.Error as e:
-            print(f"SQLite error: {e}")
+        else:
             return False
-        finally:
-            conn.close()
+        
+    @staticmethod
+    def getUserName(email):
+        query = "SELECT FirstName FROM Users WHERE Email = ?"
+        parameters = (email,)
+        result = User.connect_to_database(query=query, parameters=parameters, fetchone=True)
+        if result:
+            return result[0]
+        else:
+            return False
 
+
+    @staticmethod
+    def check_credentials(userName, password, db_file='BankDom.db'):
+        query = "SELECT Username, password, UserID FROM Users WHERE Username = ?"
+        parameters = (userName,)
+        result = User.connect_to_database(query=query, parameters=parameters, fetchone=True, db_file=db_file)
+        if result:
+            stored_password_hash = result[1]
+            check = check_password_hash(stored_password_hash, password)
+            if check:
+                return [check, result[2]]
+        return False
+
+    @staticmethod
+    def getAccountNumber(customer_id):
+        query = "SELECT AccountNumber FROM Users WHERE UserID = ?"
+        parameters = (customer_id,)
+        result = User.connect_to_database(query=query, parameters=parameters, fetchone=True)
+        if result:
+            return result[0]
+        else:
+            return False
+
+    @staticmethod
     def addTransaction(accountNumber, amount, type):
-        try:
-            conn = sqlite3.connect("BankDom.db")
-            cursor = conn.cursor()
-            transactionID = User.generate_unique_transaction_id()
-            cursor.execute("""
-                           INSERT INTO Transactions (TransactionID, AccountNumber, Amount, TransactionType) 
-                           VALUES (?,?,?,?)
-                           """, (transactionID, accountNumber, amount, type))
-            conn.commit()
-        except sqlite3.Error as e:
-            print(f"SQLite error: {e}")
-            return False
-        finally:
-            conn.close()
+        query = "INSERT INTO Transactions (TransactionID, AccountNumber, Amount, TransactionType) VALUES (?,?,?,?)"
+        transactionID = User.generate_unique_transaction_id()
+        parameters = (transactionID, accountNumber, amount, type)
+        return User.connect_to_database(query=query, parameters=parameters)
 
+    @staticmethod
     def get_user_info(userID):
-        # Print all user information
-        try:
-            conn = sqlite3.connect("BankDom.db")
-            cursor = conn.cursor()
+        query = "SELECT * FROM Users WHERE UserID = ?"
+        parameters = (userID,)
+        return User.connect_to_database(query=query, parameters=parameters, fetchone=True)
 
-            # Query the database to find a matching user by user ID
-            cursor.execute("""
-                SELECT * FROM Users WHERE UserID = ?
-            """, (userID,))
+    @staticmethod
+    def insert_into_database(data, db_file='BankDom.db'):
+        query = "INSERT INTO Users (FirstName, LastName, Email, Username, UserID, Password, AccountNumber, AccountType, Balance) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+        parameters = (data.customer_first_name, data.customer_last_name, data.customer_email, data.customer_user_name, data.customer_id, data.password, data.account_number, data.account_type, data.balance)
+        return User.connect_to_database(query=query, parameters=parameters, db_file=db_file)
 
-            result = cursor.fetchone()
-            return result
-        except sqlite3.Error as e:
-            print(f"SQLite error: {e}")
-            return False
-        finally:
-            conn.close()
-
-    def insert_into_database(self, db_file='BankDom.db'):
-        try:
-            conn = sqlite3.connect(db_file)
-            cursor = conn.cursor()
-
-            # Insert the user data into the "Users" table
-            cursor.execute("""
-                INSERT INTO Users (FirstName, LastName, Email, Username, UserID, Password, AccountNumber, AccountType, Balance)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, (self.customer_first_name, self.customer_last_name, self.customer_email, self.customer_user_name, self.customer_id, self.password, self.account_number, self.account_type, self.balance))
-
-            conn.commit()
-        except sqlite3.Error as e:
-            print(f"SQLite error: {e}")
-        finally:
-            conn.close()
-    
+    @staticmethod
     def getAccounts(userID):
-        try:
-            conn = sqlite3.connect("BankDom.db")
-            cursor = conn.cursor()
-            cursor.execute("""
-                SELECT AccountType.Name, Users.balance, Users.AccountNumber
-                FROM Users
-                INNER JOIN AccountType ON Users.AccountType = AccountType.Name
-                WHERE Users.UserID = ?
-            """, (userID,))
-            result = cursor.fetchall()
-            return result
-        except sqlite3.Error as e:
-            print(f"SQLite error: {e}")
-            return False
+        query = "SELECT AccountType.Name, Users.balance, Users.AccountNumber FROM Users INNER JOIN AccountType ON Users.AccountType = AccountType.Name WHERE Users.UserID = ?"
+        parameters = (userID,)
+        return User.connect_to_database(query=query, parameters=parameters, fetchall=True)
 
-    def createAccount(data, accountType='Saving'):
-        try:
-            conn = sqlite3.connect("BankDom.db")
-            cursor = conn.cursor()
-            newAccountNumber = User.generate_unique_account_number()
-            
-            # Insert the user data into the "Users" table
-            cursor.execute("""
-                INSERT INTO Users (FirstName, LastName, Email, Username, UserID, Password, AccountNumber, AccountType, Balance)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, (data[0], data[1], data[2], data[3], data[4], data[5], newAccountNumber, accountType, float(0.00)))
 
-            conn.commit()
-        except sqlite3.Error as e:
-            print(f"SQLite error: {e}")
-        finally:
-            conn.close()
-
+    @staticmethod
     def deposit(amount, accountNumber):
-        try:
-            conn = sqlite3.connect("BankDom.db")
-            cursor = conn.cursor()
-            cursor.execute("""
-            UPDATE Users
-            SET Balance = Balance + ?
-            WHERE AccountNumber = ?
-            """, (amount, accountNumber))
-            conn.commit()
-        except sqlite3.Error as e:
-            print(f"SQLite error: {e}")
-        finally:
-            conn.close()
+        query = "UPDATE Users SET Balance = Balance + ? WHERE AccountNumber = ?"
+        parameters = (amount, accountNumber)
+        return User.connect_to_database(query=query, parameters=parameters)
 
-    def transfer(amount, recieverAccountNumber, fromAccount):
+    @staticmethod
+    def transfer(amount, receiverAccountNumber, fromAccount):
         try:
             amount = float(amount)
             conn = sqlite3.connect("BankDom.db")
             cursor = conn.cursor()
-            cursor.execute("""
-            UPDATE Users
-            SET Balance = Balance + ?
-            WHERE AccountNumber = ?
-            """, (amount, recieverAccountNumber))
-            cursor.execute("""
-            UPDATE Users
-            SET Balance = Balance - ?
-            WHERE AccountNumber = ?
-            """, (amount, fromAccount*(1)))
+            cursor.execute("UPDATE Users SET Balance = Balance + ? WHERE AccountNumber = ?", (amount, receiverAccountNumber))
+            cursor.execute("UPDATE Users SET Balance = Balance - ? WHERE AccountNumber = ?", (amount, fromAccount))
             conn.commit()
-            User.addTransaction(recieverAccountNumber, amount, "Online")
+            User.addTransaction(receiverAccountNumber, amount, "Online")
             amount = amount * (-1)
             User.addTransaction(fromAccount, amount, "Online")
         except sqlite3.Error as e:
@@ -242,77 +160,39 @@ class User():
         finally:
             conn.close()
     
+    @staticmethod
     def getBalance(accountNumber):
-        try:
-            conn = sqlite3.connect("BankDom.db")
-            cursor = conn.cursor()
-
-            # Query the database to find a matching user by user ID
-            cursor.execute("""
-                SELECT Balance FROM Users WHERE AccountNumber = ?
-            """, (accountNumber,))
-
-            result = cursor.fetchone()
+        query = "SELECT Balance FROM Users WHERE AccountNumber = ?"
+        parameters = (accountNumber,)
+        result = User.connect_to_database(query=query, parameters=parameters, fetchone=True)
+        if result:
             return result[0]
-        except sqlite3.Error as e:
-            print(f"SQLite error: {e}")
+        else:
             return False
-        finally:
-            conn.close()
 
     @staticmethod
     def get_paginated_transactions(account_num, offset, page_size):
-        # Fetch all transactions for the account
         all_transactions = User.get_all_transactions(account_num)
-        
-        # Calculate the starting and ending indices for the current page
         start_index = offset
         end_index = offset + page_size
-        
-        # Subset the transactions for the current page
         paginated_transactions = all_transactions[start_index:end_index]
-        
         return paginated_transactions
 
     @staticmethod
     def get_all_transactions(account_num):
-        try:
-            conn = sqlite3.connect("BankDom.db")
-            cursor = conn.cursor()
+        query = "SELECT Amount, TransactionDate FROM Transactions WHERE AccountNumber = ? ORDER BY TransactionDate DESC"
+        parameters = (account_num,)
+        return User.connect_to_database(query=query, parameters=parameters, fetchall=True)
 
-            # Query the database to find all transactions for the given account number
-            cursor.execute("""
-                SELECT Amount, TransactionDate 
-                FROM Transactions 
-                WHERE AccountNumber = ?
-                ORDER BY TransactionDate DESC
-            """, (account_num,))
-            
-            result = cursor.fetchall()
-            return result
-        except sqlite3.Error as e:
-            print(f"SQLite error: {e}")
-            return False
-        finally:
-            conn.close()
-    
     @staticmethod
     def get_total_transactions_count(account_num):
-        try:
-            conn = sqlite3.connect("BankDom.db")
-            cursor = conn.cursor()
-            cursor.execute("""
-                SELECT COUNT(*) 
-                FROM Transactions 
-                WHERE AccountNumber = ?
-            """, (account_num,))
-            result = cursor.fetchone()[0]  # Fetch the count value from the result
-            return result
-        except sqlite3.Error as e:
-            print(f"SQLite error: {e}")
+        query = "SELECT COUNT(*) FROM Transactions WHERE AccountNumber = ?"
+        parameters = (account_num,)
+        result = User.connect_to_database(query=query, parameters=parameters, fetchone=True)
+        if result:
+            return result[0]
+        else:
             return False
-        finally:
-            conn.close()
 
 
 if __name__ == '__main__':

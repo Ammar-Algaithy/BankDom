@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash, make_response
+from flask import Flask, render_template, jsonify, request, redirect, url_for, session, flash, make_response
 from app.models.user import User
 
 app = Flask(__name__, template_folder='app/templates')
@@ -31,7 +31,7 @@ def register():
             account_type= account_type,
             balance= balance
         )
-        user1.insert_into_database()
+        User.insert_into_database(user1)
         userID = User.getUserID(user_name)
         accountNum = User.getAccountNumber(userID)
         User.addTransaction(accountNum, balance, "Deposit")
@@ -151,6 +151,17 @@ def render_transactions_template(account_num, page=1, page_size=10):
     return render_template('transactions.html', account_num=account_num, transactions=transactions,
                            page=page, page_size=page_size, prev_page=prev_page, next_page=next_page)
 
+@app.route('/submit_request', methods=['POST'])
+def submit_request():
+    data = request.json
+    userEmail = data.get('userEmail')
+    amount = data.get('amount')
+    
+    userName = User.getUserName(userEmail)
+    print(userName)
+    # Process the form data and return a response
+    # For example, you can return the form data as JSON
+    return jsonify(Name=userName, amount=amount)
 
 
 @app.route('/logout', methods=['GET'])
@@ -169,5 +180,5 @@ def logout():
     return response
     
 if __name__ == '__main__':
-    User.getAccounts('20240203223405-244917')
+    #User.getAccounts('20240203223405-244917')
     app.run(debug=True)

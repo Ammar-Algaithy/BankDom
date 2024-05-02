@@ -18,7 +18,12 @@
     </header>
     <section class="info-card">
         <div class="left">
-            <h1>Left</h1>
+            <div class="upper-section">
+                <h3 id="displayRequestInfo">Requests:</h3>
+                <div id="requestedInfo"></div>
+            </div>
+            <div class="middle-section">2</div>
+            <div class="lower-section">3</div>
         </div>
         <div class="middle">
             <h1>Hello, {{ userName }}</h1>
@@ -42,7 +47,7 @@
             <a class="btn btn-primary" href="{{ url_for('create_account') }}">Create Account</a>
         </div>
         <div class="right">
-            <div class="Deposit">
+            <div class="deposit">
                 <button type="button" class="btn btn-primary" id="deposit" onclick="showDepForm()">Deposit</button>
                 <form id="deposit-form" class="form" action="{{ url_for('deposit') }}" method="POST" style="display: none;">
                     <label for="amount">Enter Amount:</label>
@@ -64,7 +69,7 @@
                     <input type="number" class="amount" name="amount" step="0.01" min="0" placeholder="Amount" required>
                     <input type="text" class="accountNumber" name="account_number" step="0.01" min="0" placeholder="Account Number" required>
                     <div class="input-container">
-                        <label for="accountType">Choose an account: </label>
+                        <label for="accountType">Choose an account you want to send from: </label>
                         <select name="selected_account">
                             {% for account in accounts %}
                             <option value="{{ account[2] }}">{{ account[0] }}</option>
@@ -73,7 +78,18 @@
                     </div>
                     <button type="submit" class="btn btn-primary" id="transferButton">Transfer</button>
                 </form>
-            </div>            
+            </div>  
+            <div class="request">
+                <button type="button" class="btn btn-primary" id="request" onclick="showReqForm()">Request</button>
+                <div id="requestForm" style="display: none;">
+                    <form id="requestMoneyForm" method="POST" onsubmit="submitRequestForm(event)">
+                        <input type="email" name="userEmail" id="userEmail" placeholder="User Email">
+                        <input type="number" name="amount" id="amountRequested" placeholder="Amount">
+                        <button type="submit">Submit</button>
+                    </form>
+                </div>
+            </div>
+
         </div>
     </section> 
     <footer>
@@ -87,13 +103,13 @@
             var transferButton = document.getElementById("transfer");
     
             if (depositForm.style.display === "none") {
-                depositForm.style.display = "inline-block"; 
+                depositForm.style.display = "block"; 
                 depositButton.innerText = "Cancel";
                 transferForm.style.display = "none";
                 transferButton.style.display = "none";  // hide transfer button when deposit form is shown
             } else {
                 depositForm.style.display = "none";
-                transferButton.style.display = "inline-block";  // show transfer button when deposit form is hidden
+                transferButton.style.display = "block";  // show transfer button when deposit form is hidden
                 depositButton.innerText = "Deposit";
             }
         }
@@ -105,13 +121,13 @@
             var transferButton = document.getElementById("transfer");
     
             if (transferForm.style.display === "none") {
-                transferForm.style.display = "inline-block";
+                transferForm.style.display = "block";
                 depositForm.style.display = "none";
                 depositButton.style.display = "none";  // hide deposit button when transfer form is shown
                 transferButton.innerText = "Cancel";
             } else {
                 transferForm.style.display = "none";
-                depositButton.style.display = "inline-block";  // show deposit button when transfer form is hidden
+                depositButton.style.display = "block";  // show deposit button when transfer form is hidden
                 transferButton.innerText = "Transfer";
             }
         }
@@ -134,7 +150,7 @@
                     // Handle successful response
                     var transactionsHtml = xhr.responseText;
                     // Update the current page with the transactions HTML
-                    document.body.innerHTML = transactionsHtml;
+                    document.documentElement.innerHTML = transactionsHtml;
                 } else {
                     // Handle error
                     console.error('Request failed with status:', xhr.status);
@@ -150,6 +166,38 @@
             xhr.send(formData);
         }
         
+        function showReqForm() {
+            var requestForm = document.getElementById("requestForm");
+            requestForm.style.display = "block";
+        }
+
+        function submitRequestForm(event) {
+            event.preventDefault(); // Prevent the default form submission behavior
+            
+            // Get form data
+            var userEmail = document.getElementById("userEmail").value;
+            var amount = document.getElementById("amountRequested").value;
+
+            // Perform AJAX request to submit form data
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "/submit_request", true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    // Handle successful response
+                    var response = JSON.parse(xhr.responseText);
+                    displayRequestedInfo(response.Name, response.amount);
+                }
+            };
+            var formData = JSON.stringify({ "userEmail": userEmail, "amount": amount });
+            xhr.send(formData);
+        }
+
+        function displayRequestedInfo(Name, amount) {
+            var displayInfo = document.getElementById("displayRequestInfo");
+            displayInfo.innerHTML = "User - " + Name + ", requested - $" + amount;
+        }
+
     </script>
      
 </body>
